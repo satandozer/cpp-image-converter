@@ -43,6 +43,10 @@ static int GetBMPStride(int w) {
 bool SaveBMP(const Path& file, const Image& image) {
     ofstream out(file, ios::binary);
     
+    if (!out.is_open()){
+        return false;
+    }
+    
     const int w = image.GetWidth();
     const int h = image.GetHeight();
     
@@ -83,6 +87,10 @@ bool SaveBMP(const Path& file, const Image& image) {
 Image LoadBMP(const Path& file) {
     ifstream ifs(file, ios::binary);
 
+    if (!ifs.is_open()){
+        return {};
+    }
+
     // Reading header
 
     BitmapFileHeader file_header;
@@ -90,12 +98,8 @@ Image LoadBMP(const Path& file) {
     ifs.read(reinterpret_cast<char*>(&file_header),14);
     ifs.read(reinterpret_cast<char*>(&info_header),40);
 
-    if (file_header.b != 'B'                       || file_header.m != 'M' ||  
-        file_header.reserved_space != 0            || file_header.header_margain != 54 ||
-        info_header.header_size != 40              || info_header.planes_count != 1 ||
-        info_header.bit_per_pix != 24              || info_header.compression_type != 0 ||
-        info_header.horisontal_resolution != 11811 || info_header.vertical_resolution != 11811 ||
-        info_header.used_colors_count != 0         || info_header.significant_color_count != 0x1000000) {
+    if (file_header.b != 'B'                       || file_header.m != 'M' ||
+        info_header.horisontal_resolution != 11811 || info_header.vertical_resolution != 11811) {
         return {};
     }
     
